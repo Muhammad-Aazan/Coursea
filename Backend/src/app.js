@@ -42,7 +42,23 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
+const connectDB = require("./config/db");
 const mongoose = require("mongoose");
+
+// Ensure DB is connected before any API request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("DB connection error in middleware:", err.message);
+    res.status(503).json({
+      success: false,
+      message: "Database connection failed",
+      error: err.message
+    });
+  }
+});
 
 app.get("/", (req, res) => {
   res.json({
@@ -51,11 +67,6 @@ app.get("/", (req, res) => {
     version: "1.0.0",
     database: mongoose.connection.readyState === 1 ? "connected" : "connecting/offline"
   });
-});
-
-// API health check - DB status shown but not blocking
-app.use("/api", (req, res, next) => {
-  next(); // Always pass through - mongoose handles reconnection
 });
 
 app.use("/api/auth", authRoutes);

@@ -1,31 +1,46 @@
-const dns = require("dns");
-dns.setServers(["8.8.8.8", "8.8.4.4"]);
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder("ipv4first");
-}
-
 const mongoose = require("mongoose");
 
-let isConnecting = false;
+// Cache connection across Vercel serverless invocations
+let cached = global._mongooseCache;
+if (!cached) {
+  cached = global._mongooseCache = { conn: null, promise: null };
+}
 
 const connectDB = async () => {
-  if (isConnecting || mongoose.connection.readyState === 1) return;
-  isConnecting = true;
+  // Already connected — reuse
+  if (cached.conn && mongoose.connection.readyState === 1) {
+    return cached.conn;
+  }
+
+  // Connection in progress — wait for it
+  if (!cached.promise) {
+    const opts = {
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 30000,
+      bufferCommands: false,
+    };
+
+    cached.promise = mongoose.connect(process.env.MONGO_URI, opts)
+      .then((mongoose) => {
+        console.log(`MongoDB Connected: ${mongoose.connection.host}`);
+        return mongoose;
+      })
+      .catch((err) => {
+        cached.promise = null;
+        console.error("MongoDB connection error:", err.message);
+        throw err;
+      });
+  }
 
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 5000 // 5 seconds timeout instead of hanging
-    });
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-    isConnecting = false;
-  } catch (error) {
-    console.error(`Database Connection Warning: ${error.message}`);
-    console.log("Will retry connecting to MongoDB in 6 seconds... (Server remains active on Port 5000)");
-    isConnecting = false;
-
-    // Retry connection gracefully without crashing the Node.js server
-    setTimeout(connectDB, 6000);
+    cached.conn = await cached.promise;
+  } catch (err) {
+    cached.promise = null;
+    throw err;
   }
+
+  return cached.conn;
 };
 
 module.exports = connectDB;
