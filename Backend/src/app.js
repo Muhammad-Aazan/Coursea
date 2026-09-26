@@ -22,7 +22,14 @@ const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    process.env.CLIENT_URL,
+  ].filter(Boolean),
+  credentials: true
+}));
 
 app.use(
   express.json({
@@ -46,15 +53,9 @@ app.get("/", (req, res) => {
   });
 });
 
-// Middleware to check database connectivity for /api routes
+// API health check - DB status shown but not blocking
 app.use("/api", (req, res, next) => {
-  if (mongoose.connection.readyState !== 1) {
-    return res.status(503).json({
-      success: false,
-      message: "Database is currently connecting or blocked by ISP/Atlas. Please connect a VPN (or ensure 0.0.0.0/0 is allowed in MongoDB Atlas Network Access)."
-    });
-  }
-  next();
+  next(); // Always pass through - mongoose handles reconnection
 });
 
 app.use("/api/auth", authRoutes);
