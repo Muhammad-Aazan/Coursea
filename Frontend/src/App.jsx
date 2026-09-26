@@ -10,6 +10,9 @@ import CourseDetails from './pages/public/CourseDetails'
 import Login from './pages/public/Login'
 import Register from './pages/public/Register'
 import InstructorProfile from './pages/public/InstructorProfile'
+import FAQ from './pages/public/FAQ'
+import ContactUs from './pages/public/ContactUs'
+import PrivacyPolicy from './pages/public/PrivacyPolicy'
 
 // Student pages
 import MyCourses from './pages/student/MyCourses'
@@ -65,7 +68,7 @@ function NotFound() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         {/* CoursePlayer: full-screen classroom, NO Navbar/Footer */}
         <Route
@@ -87,6 +90,10 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/instructor/:instructorId" element={<InstructorProfile />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<PrivacyPolicy />} />
 
           {/* ── Student Routes ── */}
           <Route path="/my-courses"

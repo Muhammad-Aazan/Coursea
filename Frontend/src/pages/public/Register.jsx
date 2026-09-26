@@ -24,20 +24,47 @@ export default function Register() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [fieldErrors, setFieldErrors] = useState({});
+
   useEffect(() => {
     if (searchParams.get("role") === "instructor") {
       setRole("instructor");
     }
   }, [searchParams]);
 
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const nameRegex = /^[a-zA-Z\s'.]+$/;
+
+  const validate = () => {
+    const errs = {};
+    if (!name.trim()) {
+      errs.name = "Full name is required";
+    } else if (name.trim().length < 2) {
+      errs.name = "Name must be at least 2 characters long";
+    } else if (!nameRegex.test(name.trim())) {
+      errs.name = "Name can only contain letters and spaces";
+    }
+
+    if (!email.trim()) {
+      errs.email = "Email address is required";
+    } else if (!emailRegex.test(email.trim())) {
+      errs.email = "Please enter a valid email address (e.g. name@example.com)";
+    }
+
+    if (!password) {
+      errs.password = "Password is required";
+    } else if (password.length < 6) {
+      errs.password = "Password must be at least 6 characters long";
+    }
+
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      return;
-    }
+    if (!validate()) return;
 
     setSubmitting(true);
     try {
@@ -51,7 +78,12 @@ export default function Register() {
         navigate("/courses");
       }
     } catch (err) {
-      setError(err.message || "Failed to create account");
+      const msg = err.message || "";
+      if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("duplicate")) {
+        setError("This email address is already registered. Please sign in instead.");
+      } else {
+        setError(msg || "Failed to create account. Please check your information and try again.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -111,7 +143,7 @@ export default function Register() {
         )}
 
         {/* Registration Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               Full Name
@@ -120,13 +152,25 @@ export default function Register() {
               <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="text"
-                required
                 placeholder="Muhammad Ali"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 rounded-xl outline-none transition-colors"
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (fieldErrors.name) setFieldErrors({ ...fieldErrors, name: null });
+                }}
+                className={`w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border rounded-xl outline-none transition-colors ${
+                  fieldErrors.name
+                    ? "border-rose-400 bg-rose-50/40"
+                    : "border-slate-200 focus:bg-white focus:border-blue-500"
+                }`}
               />
             </div>
+            {fieldErrors.name && (
+              <p className="text-xs text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{fieldErrors.name}</span>
+              </p>
+            )}
           </div>
 
           <div>
@@ -137,13 +181,25 @@ export default function Register() {
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="email"
-                required
                 placeholder="ali@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 rounded-xl outline-none transition-colors"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: null });
+                }}
+                className={`w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border rounded-xl outline-none transition-colors ${
+                  fieldErrors.email
+                    ? "border-rose-400 bg-rose-50/40"
+                    : "border-slate-200 focus:bg-white focus:border-blue-500"
+                }`}
               />
             </div>
+            {fieldErrors.email && (
+              <p className="text-xs text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{fieldErrors.email}</span>
+              </p>
+            )}
           </div>
 
           <div>
@@ -154,13 +210,25 @@ export default function Register() {
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="password"
-                required
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 rounded-xl outline-none transition-colors"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: null });
+                }}
+                className={`w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border rounded-xl outline-none transition-colors ${
+                  fieldErrors.password
+                    ? "border-rose-400 bg-rose-50/40"
+                    : "border-slate-200 focus:bg-white focus:border-blue-500"
+                }`}
               />
             </div>
+            {fieldErrors.password && (
+              <p className="text-xs text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{fieldErrors.password}</span>
+              </p>
+            )}
           </div>
 
           <button

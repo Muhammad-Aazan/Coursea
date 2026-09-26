@@ -13,18 +13,49 @@ export default function Login() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [fieldErrors, setFieldErrors] = useState({});
+
   const queryRedirect = new URLSearchParams(location.search).get("redirect");
   const from = queryRedirect || location.state?.from?.pathname || "/";
+
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  const validate = () => {
+    const errs = {};
+    if (!email.trim()) {
+      errs.email = "Email address is required";
+    } else if (!emailRegex.test(email.trim())) {
+      errs.email = "Please enter a valid email format (e.g. name@example.com)";
+    }
+
+    if (!password) {
+      errs.password = "Password is required";
+    } else if (password.length < 6) {
+      errs.password = "Password must be at least 6 characters";
+    }
+
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    if (!validate()) return;
+
     setSubmitting(true);
     try {
       await login(email.trim(), password);
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.message || "Invalid email or password");
+      const msg = err.message || "";
+      if (msg.toLowerCase().includes("not found") || msg.toLowerCase().includes("user")) {
+        setError("No account found with this email. Please check your spelling or sign up.");
+      } else if (msg.toLowerCase().includes("password") || msg.toLowerCase().includes("invalid")) {
+        setError("Incorrect email or password. Please verify your credentials and try again.");
+      } else {
+        setError(msg || "Failed to sign in. Please try again.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -55,7 +86,7 @@ export default function Login() {
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               Email Address
@@ -64,13 +95,25 @@ export default function Login() {
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="email"
-                required
                 placeholder="name@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 rounded-xl outline-none transition-colors"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: null });
+                }}
+                className={`w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border rounded-xl outline-none transition-colors ${
+                  fieldErrors.email
+                    ? "border-rose-400 bg-rose-50/40"
+                    : "border-slate-200 focus:bg-white focus:border-blue-500"
+                }`}
               />
             </div>
+            {fieldErrors.email && (
+              <p className="text-xs text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{fieldErrors.email}</span>
+              </p>
+            )}
           </div>
 
           <div>
@@ -81,13 +124,25 @@ export default function Login() {
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="password"
-                required
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 rounded-xl outline-none transition-colors"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: null });
+                }}
+                className={`w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border rounded-xl outline-none transition-colors ${
+                  fieldErrors.password
+                    ? "border-rose-400 bg-rose-50/40"
+                    : "border-slate-200 focus:bg-white focus:border-blue-500"
+                }`}
               />
             </div>
+            {fieldErrors.password && (
+              <p className="text-xs text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{fieldErrors.password}</span>
+              </p>
+            )}
           </div>
 
           <button

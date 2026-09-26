@@ -38,56 +38,66 @@ export default function Footer() {
           {/* Quick Links */}
           <div>
             <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
-              Explore
+              Explore Courses
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link to="/courses" className="hover:text-white transition-colors">
-                  All Courses
+                  All Courses Catalog
                 </Link>
               </li>
               <li>
-                <Link to="/courses?level=beginner" className="hover:text-white transition-colors">
-                  Beginner Friendly
+                <Link to="/courses?category=Culinary+%26+Cooking" className="hover:text-white transition-colors">
+                  Culinary & Cooking
                 </Link>
               </li>
               <li>
-                <Link to="/courses?maxPrice=0" className="hover:text-white transition-colors">
+                <Link to="/courses?category=Baking+%26+Pastry+Arts" className="hover:text-white transition-colors">
+                  Baking & Pastry Arts
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses?category=Automotive+%26+Mechanics" className="hover:text-white transition-colors">
+                  Automotive & Mechanics
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses?maxPrice=0" className="hover:text-emerald-400 text-emerald-500 font-semibold transition-colors">
                   Free Courses
-                </Link>
-              </li>
-              <li>
-                <Link to="/register?role=instructor" className="hover:text-white transition-colors">
-                  Become an Instructor
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Categories */}
+          {/* Help & Support */}
           <div>
             <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
-              Top Categories
+              Help & Legal
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to="/courses?category=web" className="hover:text-white transition-colors">
-                  Web Development
+                <Link to="/faq" className="hover:text-white transition-colors">
+                  Help Center & FAQs
                 </Link>
               </li>
               <li>
-                <Link to="/courses?category=data" className="hover:text-white transition-colors">
-                  Data Science & AI
+                <Link to="/contact" className="hover:text-white transition-colors">
+                  Contact Support
                 </Link>
               </li>
               <li>
-                <Link to="/courses?category=design" className="hover:text-white transition-colors">
-                  UI/UX Design
+                <Link to="/privacy" className="hover:text-white transition-colors">
+                  Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/courses?category=business" className="hover:text-white transition-colors">
-                  Business & Finance
+                <Link to="/terms" className="hover:text-white transition-colors">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link to="/register?role=instructor" className="hover:text-blue-400 text-blue-400 font-semibold transition-colors">
+                  Teach on Coursea
                 </Link>
               </li>
             </ul>
@@ -99,7 +109,7 @@ export default function Footer() {
               Stay Connected
             </h4>
             <p className="text-sm text-slate-400 mb-3">
-              Get the latest courses, discount alerts, and career guides delivered straight to your inbox.
+              Get the latest courses, skills guides, and discount alerts delivered straight to your inbox.
             </p>
             <div className="flex gap-2">
               <input
@@ -107,7 +117,7 @@ export default function Footer() {
                 placeholder="Enter email"
                 className="w-full px-3 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
               />
-              <button className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+              <button className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shrink-0">
                 Join
               </button>
             </div>
@@ -116,8 +126,14 @@ export default function Footer() {
 
         <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>© {new Date().getFullYear()} Coursea LMS, Inc. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <Link to="/faq" className="hover:text-slate-400">FAQ</Link>
+            <Link to="/contact" className="hover:text-slate-400">Contact</Link>
+            <Link to="/privacy" className="hover:text-slate-400">Privacy</Link>
+            <Link to="/terms" className="hover:text-slate-400">Terms</Link>
+          </div>
           <p className="flex items-center gap-1">
-            Built with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" /> for modern learners.
+            Built with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" /> for lifelong learners.
           </p>
         </div>
       </div>
