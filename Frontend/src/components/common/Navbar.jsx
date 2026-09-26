@@ -19,6 +19,8 @@ import {
   ShieldAlert
 } from "lucide-react";
 
+import { getSafeMediaUrl } from "../../utils/media";
+
 export default function Navbar() {
   const { user, logout, isStudent, isInstructor, isAdmin } = useAuth();
   const { wishlistCount } = useWishlist();
@@ -135,14 +137,17 @@ export default function Navbar() {
                     className="flex items-center gap-2 p-1.5 rounded-full hover:bg-slate-100 transition-colors focus:outline-none"
                   >
                     <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm overflow-hidden">
-                      {user.profileImage ? (
+                      {user.profileImage && getSafeMediaUrl(user.profileImage) ? (
                         <img
-                          src={user.profileImage}
+                          src={getSafeMediaUrl(user.profileImage)}
                           alt={user.name}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
                         />
                       ) : (
-                        user.name.charAt(0).toUpperCase()
+                        user.name?.charAt(0)?.toUpperCase() || "U"
                       )}
                     </div>
                   </button>

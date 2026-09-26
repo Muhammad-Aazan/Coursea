@@ -6,7 +6,9 @@ const uploadFile = (req, res) => {
     });
   }
 
-  const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+  const host = req.get("host");
+  const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
 
   res.status(200).json({
     success: true,
